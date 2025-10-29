@@ -1,4 +1,5 @@
 TESTS := test/parse/*.bril \
+	test/elamdf/*.bril\
 	test/print/*.json \
 	test/ts*/*.ts \
 	test/check/*.bril \
