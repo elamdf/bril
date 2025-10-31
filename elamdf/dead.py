@@ -1,4 +1,5 @@
 from collections import OrderedDict
+from util import flatten
 import json
 import sys
 from cfg import get_blocks
@@ -21,7 +22,7 @@ def unused_var_elim(fun):
         changed |= len(block) != len(new_block)
         block[:] = new_block
 
-    fun['instrs'] = [inst for inst in block for block in blocks]
+    fun['instrs'] = flatten(blocks)
 
     return changed
 
@@ -50,7 +51,7 @@ def clobbered_var_elim(fun):
         changed |= len(to_remove) > 0
         block[:] = [i for i in block if i not in to_remove]
 
-    fun['instrs'] = [inst for inst in block for block in blocks]
+    fun['instrs'] = flatten(blocks)
 
     return changed
 
