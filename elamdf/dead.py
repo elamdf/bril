@@ -47,7 +47,6 @@ def clobbered_var_elim(fun):
                 unused[dest] = inst
 
         changed |= len(to_remove) > 0
-        print(to_remove)
         block[:] = [i for i in block if i not in to_remove]
 
     fun['instrs'] = [inst for inst in block for block in blocks]
@@ -62,9 +61,7 @@ def dce():
     cfg = {}  # label : edges
 
     for f in prog['functions']:
-        while unused_var_elim(f):
-            pass
-        while clobbered_var_elim(f):
+        while unused_var_elim(f) or clobbered_var_elim(f):
             pass
 
     print(json.dumps(prog, indent=1))
