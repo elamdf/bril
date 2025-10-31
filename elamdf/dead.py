@@ -25,6 +25,36 @@ def unused_var_elim(fun):
     return changed
 
 
+def clobbered_var_elim(fun):
+    changed = False
+    blocks = list(get_blocks(fun['instrs']))
+
+    for block in blocks:
+        unused = {}  # var : inst that last overwrote it
+
+        to_remove = []
+        for inst in block:
+
+            if 'args' in inst:
+                for a in inst['args']:
+                    if a in unused:
+                        del unused[a]
+            if 'dest' in inst:
+                dest = inst['dest']
+                if dest in unused:
+                    to_remove.append(unused[dest])
+
+                unused[dest] = inst
+
+        changed |= len(to_remove) > 0
+        print(to_remove)
+        block[:] = [i for i in block if i not in to_remove]
+
+    fun['instrs'] = [inst for inst in block for block in blocks]
+
+    return changed
+
+
 def dce():
 
     prog = json.load(sys.stdin)
@@ -33,6 +63,8 @@ def dce():
 
     for f in prog['functions']:
         while unused_var_elim(f):
+            pass
+        while clobbered_var_elim(f):
             pass
 
     print(json.dumps(prog, indent=1))
