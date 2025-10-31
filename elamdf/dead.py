@@ -1,5 +1,5 @@
 from collections import OrderedDict
-from util import flatten
+from util import flatten, non_local_ops
 import json
 import sys
 from cfg import get_blocks
@@ -18,7 +18,14 @@ def unused_var_elim(fun):
     changed = False
 
     for block in blocks:
-        new_block = [i for i in block if "dest" not in i or i['dest'] in used]
+        new_block = [
+            i
+            for i in block
+            if "dest" not in i
+            or i['dest'] in used
+            or 'op' in i
+            and i['op'] in non_local_ops
+        ]
         changed |= len(block) != len(new_block)
         block[:] = new_block
 

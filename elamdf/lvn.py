@@ -1,7 +1,7 @@
 from cfg import get_blocks, get_local_cfg, get_block_list
 import uuid
 
-from util import flatten
+from util import flatten, non_local_ops
 import sys
 from collections import OrderedDict
 import json
@@ -49,15 +49,18 @@ def lvn_block(block):
             elif len(args) == 2:
                 value = (instr['op'], args[0], args[1])
             else:
-                if 'value' in instr:
-                    value = (instr['op'], instr['value'])
-                else:
-                    assert (
-                        'dest' not in instr
-                    ), "there are no args nor value but there is a dest"
-                    value = (instr['op'], None)
+                value = uuid.uuid4()
+                # if 'value' in instr:
+                #     value = (instr['op'], instr['value'])
+                # else:
+                #     assert (
+                #         'dest' not in instr
+                #     ), "there are no args nor value but there is a dest"
+                #     value = (instr['op'], None)
 
-            if value in table:  # direct subexp replacement
+            if (
+                value in table and instr['op'] not in non_local_ops
+            ):  # direct subexp replacement
                 idx = list(table.keys()).index(value)
                 if idx == var2num[table[value]]:
                     instr['op'] = "id"
